@@ -45,22 +45,37 @@ class Student:
         with open('my_lessons.csv', 'r', encoding='utf-8', newline='') as file:
             reader = csv.reader(file)
             for row in reader:
-                self.subjects['предметы'][row[0]] = []
+                self.subjects['предметы'][row[0]] = {'оценки': [], 'тест': []}
         return self.subjects
         
    
-    def add_estimate(self, name_sub: str, num: int):
-        if num < 2 or num > 5:
-            raise ValueError('оценка должна быть в диапазоне от 2 до 5')
-        self.subjects['предметы'][name_sub].append(num)
+    def add_estimate(self, name_sub: str, num: int, type_est: str='оценки'):
+        if type_est == 'оценки':
+            if num < 2 or num > 5:
+                raise ValueError('оценка должна быть в диапазоне от 2 до 5')
+            self.subjects['предметы'][name_sub]['оценки'].append(num)
 
+        if type_est == 'тест':
+            if num < 0 or num > 100:
+                raise ValueError('оценка должна быть в диапазоне от 0 до 100')
+            self.subjects['предметы'][name_sub]['тест'].append(num)
 
-
-    def midd_estimate(self):
+# вот здесь сначала сделала как метод класса, не как статический метод, с передачей self, код работал.
+# прочитала, что статический метод для экономии памяти, один глобальный метод для всех экземпляров класса, 
+# если я правильно поняла
+    @staticmethod
+    def midd_estimate(subjects):
         midd_est_dict = {}
-        for name_sub, num in self.subjects['предметы'].items():
-            average = round(sum(num) / len(num), 2)
-            midd_est_dict[name_sub] = average
+        dict = subjects['предметы']
+        for name_sub, values in dict.items():
+            est_sub = values['оценки']
+            est_test = values['тест']
+            if len(est_sub) == 0 or len(est_test) == 0:
+                continue
+            average_est_sub = round(sum(est_sub) / len(est_sub), 2)
+            average_est_test = round(sum(est_test) / len(est_test), 2)
+            midd_est_dict[name_sub] = {'средняя оценка': average_est_sub, 'средний тест': average_est_test}
+
         return midd_est_dict
 
         
@@ -70,17 +85,28 @@ class Student:
 
 std_1 = Student('Ivan', 'Ivanovich', 'Ivanov', 'my_lessons.csv')
 print(std_1)  
-print(std_1.first_name)
+# print(std_1.first_name)
 std_1.subjects_dictionary('my_lessons.csv')
+# print(std_1.subjects)
+std_1.add_estimate('труд', 3, 'оценки')
+std_1.add_estimate('труд', 4, 'оценки')
+std_1.add_estimate('труд', 2, 'оценки')
+std_1.add_estimate('труд', 68, 'тест')
+std_1.add_estimate('труд', 70, 'тест')
+std_1.add_estimate('труд', 65, 'тест')
+std_1.add_estimate('алгебра', 5, 'оценки')
+std_1.add_estimate('алгебра', 4, 'оценки')
+std_1.add_estimate('алгебра', 5, 'оценки')
+std_1.add_estimate('алгебра', 85, 'тест')
+std_1.add_estimate('алгебра', 96, 'тест')
+std_1.add_estimate('алгебра', 100, 'тест')
+std_1.add_estimate('химия', 5, 'оценки')
+std_1.add_estimate('химия', 5, 'оценки')
+std_1.add_estimate('химия', 5, 'оценки')
+std_1.add_estimate('химия', 99, 'тест')
+std_1.add_estimate('химия', 100, 'тест')
+std_1.add_estimate('химия', 95, 'тест')
 print(std_1.subjects)
-std_1.add_estimate('труд', 3)
-std_1.add_estimate('труд', 4)
-std_1.add_estimate('труд', 2)
-std_1.add_estimate('алгебра', 5)
-std_1.add_estimate('алгебра', 4)
-std_1.add_estimate('алгебра', 5)
-std_1.add_estimate('химия', 5)
-std_1.add_estimate('химия', 5)
-std_1.add_estimate('химия', 5)
-print(std_1.subjects)
-print(std_1.midd_estimate())
+print(std_1.midd_estimate(std_1.subjects))
+
+# print(std_1.__dict__)
